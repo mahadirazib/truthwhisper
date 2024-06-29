@@ -1,0 +1,18 @@
+{
+    "name": "mahad/module_3",
+    "type": "project",
+    "autoload": {
+        "psr-4": {
+            "Mahad\\Module3\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "mahadirazib",
+            "email": "mahadirzb@gmail.com"
+        }
+    ],
+    "require": {
+        "vlucas/phpdotenv": "^5.6"
+    }
+}
