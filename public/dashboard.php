@@ -1,6 +1,6 @@
 <?php
 require_once '../config.php';
-$username = $_SESSION['username'] ?? null;
+// $userId = $_SESSION['user_id'] ?? null;
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -8,55 +8,14 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $userId = $_SESSION['user_id'];
+$uniq_url = $_ENV['DOMAIN'] . "/feedback.php?id=" . urlencode($userId);
 $usersFile = '../users/users.json';
 $users = json_decode(file_get_contents($usersFile), true);
 $user = $users[$userId];
 
-$commentsFile = "../users/comments/$userId.json";
-$comments = file_exists($commentsFile) ? json_decode(file_get_contents($commentsFile), true) : [];
+$feedbacksFile = "../users/feedback/$userId.json";
+$feedbacks = file_exists($feedbacksFile) ? json_decode(file_get_contents($feedbacksFile), true) : [];
 ?>
-
-<!-- <!DOCTYPE html>
-<html> -->
-<!-- <head>
-    <title>Dashboard</title>
-    <style>
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-        }
-        .alert-success {
-            color: #3c763d;
-            background-color: #dff0d8;
-            border-color: #d6e9c6;
-        }
-        .alert-danger {
-            color: #a94442;
-            background-color: #f2dede;
-            border-color: #ebccd1;
-        }
-    </style>
-</head> -->
-<!-- <body>
-    <h1>Dashboard</h1>
-    
-    <p>Welcome, !</p>
-    <p>Your unique URL is: <a href="<?= htmlspecialchars($user['unique_url']) ?>"><?= htmlspecialchars($user['unique_url']) ?></a></p>
-    <h2>Comments about you:</h2>
-    <?php foreach ($comments as $comment): ?>
-        <p><?= htmlspecialchars($comment) ?></p>
-    <?php endforeach; ?>
-    <a href="logout.php">Logout</a>
-</body>
-</html> -->
-
-
-
-
-
-
 
 
 
@@ -72,7 +31,7 @@ $comments = file_exists($commentsFile) ? json_decode(file_get_contents($comments
 <header class="bg-white">
     <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div class="flex lg:flex-1">
-            <a href="./index.html" class="-m-1.5 p-1.5">
+            <a href="./index.php" class="-m-1.5 p-1.5">
                 <span class="sr-only">TruthWhisper</span>
                 <span class="block font-bold text-lg bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</span>
             </a>
@@ -87,7 +46,7 @@ $comments = file_exists($commentsFile) ? json_decode(file_get_contents($comments
         </div>
         <div class="hidden lg:flex lg:flex-1 lg:justify-end">
             <span class="text-sm font-semibold leading-6 text-gray-900">
-                Hello <?= htmlspecialchars($user['username']) ?>!
+                Hello <?= htmlspecialchars($user['name']) ?>!
                 <a class="ms-5" href="logout.php">Logout</a>
             </span>
         </div>
@@ -98,7 +57,7 @@ $comments = file_exists($commentsFile) ? json_decode(file_get_contents($comments
         <div class="fixed inset-0 z-10"></div>
         <div class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
             <div class="flex items-center justify-between">
-                <a href="./index.html" class="-m-1.5 p-1.5">
+                <a href="./index.php" class="-m-1.5 p-1.5">
                     <span class="sr-only">TruthWhisper</span>
                     <span class="block font-bold text-xl bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</span>
                 </a>
@@ -113,7 +72,7 @@ $comments = file_exists($commentsFile) ? json_decode(file_get_contents($comments
                 <div class="-my-6 divide-y divide-gray-500/10">
                     <div class="py-6">
                         <span class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
-                            <?= htmlspecialchars($user['username']) ?>
+                            <?= htmlspecialchars($user['name']) ?>
                             <a href="logout.php">Logout</a>
                         </span>
                     </div>
@@ -131,29 +90,35 @@ $comments = file_exists($commentsFile) ? json_decode(file_get_contents($comments
         <div class="relative max-w-7xl mx-auto">
             <div class="flex justify-end">
                 <span class="block text-gray-600 font-mono border border-gray-400 rounded-xl px-2 py-1">Your feedback form link: <strong>
-                    <a href="<?= htmlspecialchars($user['unique_url']) ?>">
+                    <a href="<?php echo  $uniq_url ?>">
                         <?php 
-                            $string = htmlspecialchars($user['unique_url']);
                             $maxLength = 20;
-                            if (strlen($string) > $maxLength) {
-                                echo substr_replace($string, '...', $maxLength);
+                            if (strlen($uniq_url) > $maxLength) {
+                                echo substr_replace($uniq_url, '...', $maxLength);
                             } else {
-                                echo $string;
+                                echo $uniq_url;
                             }
                         ?>
                     </a>
                 </strong></span>
+                <span id="copyText" class="ms-5 cursor-pointer font-semibold hover:text-indigo-800" onclick="copyLink()">Copy</span>
+                <script>
+                    function copyLink(){
+                        navigator.clipboard.writeText("<?= $uniq_url ?>");
+                        document.querySelector("#copyText").innerText = "Copied";
+                    }
+                </script>
             </div>
 
             <?php displayFlashMessage(); ?>
 
             <h1 class="text-xl text-indigo-800 text-bold my-10">Received feedback</h1>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <?php foreach ($comments as $comment): ?>
+            <?php foreach ($feedbacks as $feedback): ?>
                 <div class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">
                     <div class="focus:outline-none">
                         <p class="text-gray-500">
-                            <?= htmlspecialchars($comment) ?>
+                            <?= htmlspecialchars($feedback) ?>
                         </p>
                     </div>
                 </div>

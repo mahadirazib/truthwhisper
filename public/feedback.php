@@ -1,4 +1,70 @@
-<!-- Done -->
+<?php
+require_once '../config.php';
+
+if (!isset($_GET['id'])) {
+    echo "Invalid URL.";
+    exit;
+}
+
+$userId = $_GET['id'];
+$usersFile = '../users/users.json';
+$users = json_decode(file_get_contents($usersFile), true);
+
+if (!isset($users[$userId])) {
+    echo "Invalid URL.";
+    exit;
+}else{
+    $user = $users[$userId];
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $feedback = $_POST['feedback'];
+    $feedbacksFile = "../users/feedback/$userId.json";
+    $feedbacks = file_exists($feedbacksFile) ? json_decode(file_get_contents($feedbacksFile), true) : [];
+
+    $feedbacks[] = $feedback;
+    file_put_contents($feedbacksFile, json_encode($feedbacks, JSON_PRETTY_PRINT));
+
+    // setFlashMessage('success', 'Thank you for your feedback.');
+    header("Location: feedback_success.php");
+    exit;
+}
+?>
+<!-- 
+<!DOCTYPE html>
+<html>
+<head>
+    <title>feedback on User</title>
+    <style>
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid transparent;
+            border-radius: 4px;
+        }
+        .alert-success {
+            color: #3c763d;
+            background-color: #dff0d8;
+            border-color: #d6e9c6;
+        }
+        .alert-danger {
+            color: #a94442;
+            background-color: #f2dede;
+            border-color: #ebccd1;
+        }
+    </style>
+</head>
+<body>
+    <h1>feedback on User</h1>
+    
+    <form method="POST">
+        feedback: <textarea name="feedback" required></textarea><br>
+        <input type="submit" value="Submit feedback">
+    </form>
+</body>
+</html> -->
+
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,21 +78,10 @@
 <header class="bg-white">
     <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
         <div class="flex lg:flex-1">
-            <a href="./index.html" class="-m-1.5 p-1.5">
+            <a href="./index.php" class="-m-1.5 p-1.5">
                 <span class="sr-only">TruthWhisper</span>
                 <span class="block font-bold text-lg bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</span>
             </a>
-        </div>
-        <div class="flex lg:hidden">
-            <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
-                <span class="sr-only">Open main menu</span>
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-            </button>
-        </div>
-        <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-            <a href="./login.html" class="text-sm font-semibold leading-6 text-gray-900">Log in <span aria-hidden="true">&rarr;</span></a>
         </div>
     </nav>
     <!-- Mobile menu, show/hide based on menu open state. -->
@@ -35,7 +90,7 @@
         <div class="fixed inset-0 z-10"></div>
         <div class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
             <div class="flex items-center justify-between">
-                <a href="./index.html" class="-m-1.5 p-1.5">
+                <a href="./index.php" class="-m-1.5 p-1.5">
                     <span class="sr-only">TruthWhisper</span>
                     <span class="block font-bold text-xl bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</span>
                 </a>
@@ -45,13 +100,6 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
-            </div>
-            <div class="mt-6 flow-root">
-                <div class="-my-6 divide-y divide-gray-500/10">
-                    <div class="py-6">
-                        <a href="./login.html" class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">Log in</a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -63,41 +111,27 @@
         <div class="absolute inset-0 bg-[url(./images/grid.svg)] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
         <div class="relative bg-white px-6 pt-10 pb-8 shadow-xl ring-1 ring-gray-900/5 sm:mx-auto sm:max-w-lg sm:rounded-lg sm:px-10">
             <div class="mx-auto max-w-xl">
-                <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-                    <div class="mx-auto w-full max-w-xl text-center px-24">
+                <div class="flex min-h-full flex-col justify-center px-6 py-6 lg:px-8">
+                    <div class="mx-auto w-full max-w-xl text-center">
                         <h1 class="block text-center font-bold text-2xl bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</h1>
+                        <h3 class="text-gray-500 my-2">Want to ask something or share a feedback to "<?= $user['name'] ?>"?</h3>
                     </div>
+
+                    <?php displayFlashMessage(); ?>
 
                     <div class="mt-10 mx-auto w-full max-w-xl">
                         <form class="space-y-6" action="#" method="POST">
                             <div>
-                                <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
+                                <label for="feedback" class="block text-sm font-medium leading-6 text-gray-900">Don't hesitate, just do it!</label>
                                 <div class="mt-2">
-                                    <input id="email" name="email" type="email" autocomplete="email" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                    <textarea required name="feedback" id="feedback" cols="30" rows="7" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
                                 </div>
                             </div>
 
                             <div>
-                                <div class="flex items-center justify-between">
-                                    <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Password</label>
-                                    <div class="text-sm">
-                                        <a href="#" class="font-semibold text-indigo-600 hover:text-indigo-500">Forgot password?</a>
-                                    </div>
-                                </div>
-                                <div class="mt-2">
-                                    <input id="password" name="password" type="password" autocomplete="current-password" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-                                </div>
-                            </div>
-
-                            <div>
-                                <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign in</button>
+                                <button type="submit" class="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Submit</button>
                             </div>
                         </form>
-
-                        <p class="mt-10 text-center text-sm text-gray-500">
-                            Not a member?
-                            <a href="./register.html" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">Register now!</a>
-                        </p>
                     </div>
                 </div>
             </div>
@@ -113,3 +147,4 @@
 
 </body>
 </html>
+
