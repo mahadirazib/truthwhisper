@@ -8,17 +8,25 @@ if (isset($_SESSION['user_id'])) {
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $userId = uniqid();
-    $name = $_POST['name'];
-    $email = $_POST['email'];
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $name = strip_tags(ucfirst($_POST['name']));
+    $email = strip_tags($_POST['email']);
+    $given_password = $_POST['password'];
+    $given_confirm_password = $_POST['password'];
+    $password = password_hash($given_password, PASSWORD_DEFAULT);
     
-    if($_POST['confirm_password'] != $_POST['password'] ){
+    if( $given_confirm_password != $given_password ){
         setFlashMessage('danger', 'Password didn\'t matched.');
         header('Location: register.php');
         exit;
     }
 
-    $usersFile = '../users/users.json';
+    if( strlen($given_password) < 6 ){
+        setFlashMessage('danger', 'Password have to be atleast 6 character long.');
+        header('Location: register.php');
+        exit;
+    }
+
+    $usersFile = '../data/users.json';
     $users = file_exists($usersFile) ? json_decode(file_get_contents($usersFile), true) : [];
 
     foreach ($users as $user) {
@@ -124,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div>
                                 <label for="name" class="block text-sm font-medium leading-6 text-gray-900">Name</label>
                                 <div class="mt-2">
-                                    <input id="name" name="name" type="text" required class="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+                                    <input id="name" name="name" type="text" required class="block w-full rounded-md border-0 py-1.5 px-2 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" >
                                 </div>
                             </div>
 

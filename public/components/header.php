@@ -1,7 +1,7 @@
 <?php
 if (isset($_SESSION['user_id'])) {
   $userId = $_SESSION['user_id'];
-  $usersFile = '../users/users.json';
+  $usersFile = '../data/users.json';
   $users = json_decode(file_get_contents($usersFile), true);
   $user = $users[$userId];
 }

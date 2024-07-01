@@ -10,12 +10,52 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id'];
 $uniq_url = $_ENV['DOMAIN'] . "/feedback.php?id=" . urlencode($userId);
-$usersFile = '../users/users.json';
+$usersFile = '../data/users.json';
 $users = json_decode(file_get_contents($usersFile), true);
 $user = $users[$userId];
 
-$feedbacksFile = "../users/feedback/$userId.json";
+$feedbacksFile = "../data/feedback/$userId.json";
 $feedbacks = file_exists($feedbacksFile) ? json_decode(file_get_contents($feedbacksFile), true) : [];
+
+
+
+
+$total_entries = count($feedbacks) > 0 ? count($feedbacks) : 1;
+$totals = [
+    "behavior" => 0,
+    "intelligence" => 0,
+    "friendliness" => 0,
+    "emotional" => 0
+];
+
+foreach ($feedbacks as $entry) {
+    $totals["behavior"] += $entry["behavior"];
+    $totals["intelligence"] += $entry["intelligence"];
+    $totals["friendliness"] += $entry["friendliness"];
+    $totals["emotional"] += $entry["emotional"];
+}
+
+$averages = [
+    "behavior" => intval($totals["behavior"] / $total_entries),
+    "intelligence" => intval($totals["intelligence"] / $total_entries),
+    "friendliness" => intval($totals["friendliness"] / $total_entries),
+    "emotional" => intval($totals["emotional"] / $total_entries)
+];
+
+
+
+
+function printStar(int $num){
+    if($num<0 | $num>5){
+        return "Undefined";
+    }
+    $total_stars = 5;
+    $output = str_repeat('&#9733;', $num) . str_repeat('&#9734;', $total_stars - $num);
+    
+    return $output;
+}
+
+
 ?>
 
 
@@ -42,7 +82,7 @@ $feedbacks = file_exists($feedbacksFile) ? json_decode(file_get_contents($feedba
 
             <div class="w-full flex justify-end mb-4">
                 <div class="me-auto">
-                    <span class="text-md font-bold"> Feedback: </span>
+                    <span class="text-md font-bold"> Comment: </span>
                 </div>
                 <div class="cursor-pointer" onclick="closePopup()">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
@@ -69,7 +109,7 @@ $feedbacks = file_exists($feedbacksFile) ? json_decode(file_get_contents($feedba
                     <span class="block text-gray-600 font-mono border border-gray-400 rounded-xl px-2 py-1">Your feedback form link: <strong>
                             <a href="<?php echo  $uniq_url ?>">
                                 <?php
-                                $maxLength = 20;
+                                $maxLength = 30;
                                 if (strlen($uniq_url) > $maxLength) {
                                     echo substr_replace($uniq_url, '...', $maxLength);
                                 } else {
@@ -91,18 +131,71 @@ $feedbacks = file_exists($feedbacksFile) ? json_decode(file_get_contents($feedba
                     <?php displayFlashMessage(); ?>
                 </div>
 
-                <h1 class="text-xl text-indigo-800 text-bold my-10">Received feedback</h1>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                    <?php foreach ($feedbacks as $feedback) : ?>
-                        <div class="relative flex space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">
-                            <div class="focus:outline-none cursor-pointer" onclick="showPopup(` <?= $feedback ?> `)">
-                                <p class="text-gray-500">
-                                    <?= strlen($feedback) > 300 ? substr($feedback, 0, 300) . '...' : $feedback; ?>
+                <div class="my-10">
+                    <h1 class="text-xl text-indigo-800 text-bold my-3">How you are to others:</h1>
 
+                    <div class="w-full grid grid-cols-4 gap-4">
+                        <div class="grid grid-cols-2 bg-white rounded-lg p-5">
+                            <div> Behavior: </div>
+                            <div class="flex justify-end text-indigo-800"> <?= printStar($averages["behavior"]) ?> </div>
+                        </div>
+                        <div class="grid grid-cols-2 bg-white rounded-lg p-5">
+                            <div> Intelligence: </div>
+                            <div class="flex justify-end text-indigo-800"> <?= printStar($averages["intelligence"]) ?> </div>
+                        </div>
+                        <div class="grid grid-cols-2 bg-white rounded-lg p-5">
+                            <div> Friendliness: </div>
+                            <div class="flex justify-end text-indigo-800"> <?= printStar($averages["friendliness"]) ?> </div>
+                        </div>
+                        <div class="grid grid-cols-2 bg-white rounded-lg p-5">
+                            <div> Emotional Control: </div>
+                            <div class="flex justify-end text-indigo-800"> <?= printStar($averages["emotional"]) ?> </div>
+                        </div>
+    
+                    </div>
+                </div>
+
+                <h1 class="text-xl text-indigo-800 text-bold my-3">Received feedback</h1>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <?php if(count($feedbacks)): ?>
+                    <?php foreach ($feedbacks as $feedback) : ?>
+                        <div class="relative grid grid-cols-1  rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400 cursor-pointer" onclick="showPopup(` <?= $feedback['comment'] ?> `)">
+                            <div class=" focus:outline-none">
+                                <p class="text-gray-500">
+                                    <?= strlen($feedback['comment']) > 300 ? substr($feedback['comment'], 0, 300) . '...' : $feedback['comment']; ?>
                                 </p>
                             </div>
+
+                            <div class="my-3 content-end">
+                                <div class="grid grid-cols-2">
+                                    <div> Behavior: </div>
+                                    <div> <?= printStar($feedback['behavior']) ?> </div>
+                                </div>
+
+                                <div class="grid grid-cols-2">
+                                    <div> Intelligence: </div>
+                                    <div> <?= printStar($feedback['intelligence']) ?> </div>
+                                </div>
+
+                                <div class="grid grid-cols-2">
+                                    <div> Friendliness: </div>
+                                    <div> <?= printStar($feedback['friendliness']) ?> </div>
+                                </div>
+
+                                <div class="grid grid-cols-2">
+                                    <div> Emotional Control: </div>
+                                    <div> <?= printStar($feedback['emotional']) ?> </div>
+                                </div>
+
+                            </div>
+
                         </div>
                     <?php endforeach; ?>
+                    <?php else: ?>
+                        <span class="block font-bold text-xl text-gray-400">
+                            No Feedback Found!
+                        </span>
+                    <?php endif ?>
 
                     <script>
                         function showPopup(string) {

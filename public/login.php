@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $password = $_POST['password'];
 
-    $usersFile = '../users/users.json';
+    $usersFile = '../data/users.json';
     $users = file_exists($usersFile) ? json_decode(file_get_contents($usersFile), true) : [];
 
     foreach ($users as $userId => $user) {
