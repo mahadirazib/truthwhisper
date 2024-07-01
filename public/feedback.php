@@ -2,7 +2,8 @@
 require_once '../config.php';
 
 if (!isset($_GET['id'])) {
-    echo "Invalid URL.";
+    setFlashMessage('danger', 'Please enter a valid url to give feedback!');
+    include_once './errors/404_not_Found.php';
     exit;
 }
 
@@ -11,59 +12,25 @@ $usersFile = '../users/users.json';
 $users = json_decode(file_get_contents($usersFile), true);
 
 if (!isset($users[$userId])) {
-    echo "Invalid URL.";
+    setFlashMessage('danger', 'This link does not belongs to anyone!');
+    include_once './errors/404_not_Found.php';
     exit;
 }else{
     $user = $users[$userId];
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $feedback = $_POST['feedback'];
+    $feedback = htmlspecialchars($_POST['feedback']);
     $feedbacksFile = "../users/feedback/$userId.json";
     $feedbacks = file_exists($feedbacksFile) ? json_decode(file_get_contents($feedbacksFile), true) : [];
 
     $feedbacks[] = $feedback;
     file_put_contents($feedbacksFile, json_encode($feedbacks, JSON_PRETTY_PRINT));
 
-    // setFlashMessage('success', 'Thank you for your feedback.');
     header("Location: feedback_success.php");
     exit;
 }
 ?>
-<!-- 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>feedback on User</title>
-    <style>
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-        }
-        .alert-success {
-            color: #3c763d;
-            background-color: #dff0d8;
-            border-color: #d6e9c6;
-        }
-        .alert-danger {
-            color: #a94442;
-            background-color: #f2dede;
-            border-color: #ebccd1;
-        }
-    </style>
-</head>
-<body>
-    <h1>feedback on User</h1>
-    
-    <form method="POST">
-        feedback: <textarea name="feedback" required></textarea><br>
-        <input type="submit" value="Submit feedback">
-    </form>
-</body>
-</html> -->
-
 
 
 <!DOCTYPE html>
@@ -75,35 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100">
-<header class="bg-white">
-    <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
-        <div class="flex lg:flex-1">
-            <a href="./index.php" class="-m-1.5 p-1.5">
-                <span class="sr-only">TruthWhisper</span>
-                <span class="block font-bold text-lg bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</span>
-            </a>
-        </div>
-    </nav>
-    <!-- Mobile menu, show/hide based on menu open state. -->
-    <div class="lg:hidden" role="dialog" aria-modal="true">
-        <!-- Background backdrop, show/hide based on slide-over state. -->
-        <div class="fixed inset-0 z-10"></div>
-        <div class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
-            <div class="flex items-center justify-between">
-                <a href="./index.php" class="-m-1.5 p-1.5">
-                    <span class="sr-only">TruthWhisper</span>
-                    <span class="block font-bold text-xl bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</span>
-                </a>
-                <button type="button" class="-m-2.5 rounded-md p-2.5 text-gray-700">
-                    <span class="sr-only">Close menu</span>
-                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-</header>
+
+<?php require_once './components/header.php' ?>
 
 <main class="">
     <div class="relative flex min-h-screen flex-col justify-center overflow-hidden bg-gray-50 py-6 sm:py-12">
@@ -117,14 +57,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <h3 class="text-gray-500 my-2">Want to ask something or share a feedback to "<?= $user['name'] ?>"?</h3>
                     </div>
 
-                    <?php displayFlashMessage(); ?>
+                    <div class="">
+                        <?php displayFlashMessage(); ?>
+                    </div>
 
-                    <div class="mt-10 mx-auto w-full max-w-xl">
+                    <div class="mt-6 mx-auto w-full max-w-xl">
                         <form class="space-y-6" action="#" method="POST">
                             <div>
                                 <label for="feedback" class="block text-sm font-medium leading-6 text-gray-900">Don't hesitate, just do it!</label>
                                 <div class="mt-2">
-                                    <textarea required name="feedback" id="feedback" cols="30" rows="7" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
+                                    <textarea required name="feedback" id="feedback" cols="30" rows="7" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 p-3"></textarea>
                                 </div>
                             </div>
 

@@ -11,6 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['name'];
     $email = $_POST['email'];
     $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    
+    if($_POST['confirm_password'] != $_POST['password'] ){
+        setFlashMessage('danger', 'Password didn\'t matched.');
+        header('Location: register.php');
+        exit;
+    }
 
     $usersFile = '../users/users.json';
     $users = file_exists($usersFile) ? json_decode(file_get_contents($usersFile), true) : [];
@@ -23,62 +29,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    // Add new user with username as identifier
     $users[$userId] = [
         'name' => $name,
         'email' => $email,
         'password' => $password,
-        // 'unique_url' => $_ENV['DOMAIN'] . "/unique_url.php?username=" . urlencode($username)
     ];
 
-    // Save users to file
     file_put_contents($usersFile, json_encode($users, JSON_PRETTY_PRINT));
 
 
-    // Set success message
     setFlashMessage('success', 'User registered successfully.');
 
-    // Redirect to login.php
     header('Location: login.php');
     exit;
 }
 ?>
-
-<!-- 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Register</title>
-    <style>
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-        }
-        .alert-success {
-            color: #3c763d;
-            background-color: #dff0d8;
-            border-color: #d6e9c6;
-        }
-        .alert-danger {
-            color: #a94442;
-            background-color: #f2dede;
-            border-color: #ebccd1;
-        }
-    </style>
-</head>
-<body>
-    <h1>Register</h1>
-    <?php displayFlashMessage(); ?>
-    <form method="POST">
-        Username: <input type="text" name="username" required><br>
-        Password: <input type="password" name="password" required><br>
-        <input type="submit" value="Register">
-    </form>
-    <a href="index.php">Back</a>
-</body>
-</html> -->
 
 
 
@@ -150,7 +115,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <h1 class="block text-center font-bold text-2xl bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</h1>
                     </div>
 
-                    <?php displayFlashMessage(); ?>
+                    <div class="">
+                        <?php displayFlashMessage(); ?>
+                    </div>
 
                     <div class="mt-10 mx-auto w-full max-w-xl">
                         <form class="space-y-6" action="#" method="POST">

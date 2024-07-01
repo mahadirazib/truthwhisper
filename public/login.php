@@ -28,42 +28,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit;
 }
 ?>
-<!-- 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-    <style>
-        .alert {
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid transparent;
-            border-radius: 4px;
-        }
-        .alert-success {
-            color: #3c763d;
-            background-color: #dff0d8;
-            border-color: #d6e9c6;
-        }
-        .alert-danger {
-            color: #a94442;
-            background-color: #f2dede;
-            border-color: #ebccd1;
-        }
-    </style>
-</head>
-<body>
-    <h1>Login</h1>
-    <?php displayFlashMessage(); ?>
-    <form method="POST">
-        Username: <input type="text" name="username" required><br>
-        Password: <input type="password" name="password" required><br>
-        <input type="submit" value="Login">
-    </form>
-    <a href="index.php">Back</a>
-</body>
-</html> -->
-
 
 
 <!DOCTYPE html>
@@ -91,7 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </svg>
             </button>
         </div>
-
+        <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+            <a href="./register.php" class="text-sm font-semibold leading-6 text-gray-900">Register <span aria-hidden="true">&rarr;</span></a>
+        </div>
     </nav>
     <!-- Mobile menu, show/hide based on menu open state. -->
     <div class="lg:hidden" role="dialog" aria-modal="true">
@@ -132,7 +98,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         <h1 class="block text-center font-bold text-2xl bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</h1>
                     </div>
 
-                    <?php displayFlashMessage(); ?>
+                    <div class="">
+                        <?php displayFlashMessage(); ?>
+                    </div>
 
                     <div class="mt-10 mx-auto w-full max-w-xl">
                         <form class="space-y-6" action="" method="POST">

@@ -1,6 +1,7 @@
 <?php
 require_once '../config.php';
-// $userId = $_SESSION['user_id'] ?? null;
+
+$page = 'dashboard';
 
 if (!isset($_SESSION['user_id'])) {
     header('Location: login.php');
@@ -21,120 +22,114 @@ $feedbacks = file_exists($feedbacksFile) ? json_decode(file_get_contents($feedba
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TruthWhisper - Anonymous Feedback App</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- <link rel="stylesheet" href="style.css"> -->
 </head>
+
 <body class="bg-gray-100">
-<header class="bg-white">
-    <nav class="flex items-center justify-between p-6 lg:px-8" aria-label="Global">
-        <div class="flex lg:flex-1">
-            <a href="./index.php" class="-m-1.5 p-1.5">
-                <span class="sr-only">TruthWhisper</span>
-                <span class="block font-bold text-lg bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</span>
-            </a>
-        </div>
-        <div class="flex lg:hidden">
-            <button type="button" class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700">
-                <span class="sr-only">Open main menu</span>
-                <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                </svg>
-            </button>
-        </div>
-        <div class="hidden lg:flex lg:flex-1 lg:justify-end">
-            <span class="text-sm font-semibold leading-6 text-gray-900">
-                Hello <?= htmlspecialchars($user['name']) ?>!
-                <a class="ms-5" href="logout.php">Logout</a>
-            </span>
-        </div>
-    </nav>
-    <!-- Mobile menu, show/hide based on menu open state. -->
-    <div class="lg:hidden" role="dialog" aria-modal="true">
-        <!-- Background backdrop, show/hide based on slide-over state. -->
-        <div class="fixed inset-0 z-10"></div>
-        <div class="fixed inset-y-0 right-0 z-10 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
-            <div class="flex items-center justify-between">
-                <a href="./index.php" class="-m-1.5 p-1.5">
-                    <span class="sr-only">TruthWhisper</span>
-                    <span class="block font-bold text-xl bg-gradient-to-r from-blue-600 via-green-500 to-indigo-400 inline-block text-transparent bg-clip-text">TruthWhisper</span>
-                </a>
-                <button type="button" class="-m-2.5 rounded-md p-2.5 text-gray-700">
-                    <span class="sr-only">Close menu</span>
+
+
+    <?php require_once './components/header.php' ?>
+
+    
+    <div id="full_popup" class="fixed flex min-h-screen w-full flex-col justify-center justify-items-center overflow-hidden backdrop-blur-sm bg-gray-400 bg-opacity-50 z-0" style="top:0; bottom:0;">
+        <div class="object-fit w-fit mx-auto bg-white px-10 py-10 rounded-lg">
+
+            <div class="w-full flex justify-end mb-4">
+                <div class="me-auto">
+                    <span class="text-md font-bold"> Feedback: </span>
+                </div>
+                <div class="cursor-pointer" onclick="closePopup()">
                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
-                </button>
-            </div>
-            <div class="mt-6 flow-root">
-                <div class="-my-6 divide-y divide-gray-500/10">
-                    <div class="py-6">
-                        <span class="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-gray-900 hover:bg-gray-50">
-                            <?= htmlspecialchars($user['name']) ?>
-                            <a href="logout.php">Logout</a>
-                        </span>
-                    </div>
                 </div>
+            </div>
+
+            <div class="max-w-80 max-h-80 overflow-y-auto" id="full_feedback">
+                Full Feedback here.
             </div>
         </div>
     </div>
-</header>
 
-<main class="">
-    <div class="relative flex min-h-screen overflow-hidden bg-gray-50 py-6 sm:py-12">
-        <img src="./images/beams.jpg" alt="" class="absolute top-1/2 left-1/2 max-w-none -translate-x-1/2 -translate-y-1/2" width="1308" />
-        <div class="absolute inset-0 bg-[url(./images/grid.svg)] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
 
-        <div class="relative max-w-7xl mx-auto">
-            <div class="flex justify-end">
-                <span class="block text-gray-600 font-mono border border-gray-400 rounded-xl px-2 py-1">Your feedback form link: <strong>
-                    <a href="<?php echo  $uniq_url ?>">
-                        <?php 
-                            $maxLength = 20;
-                            if (strlen($uniq_url) > $maxLength) {
-                                echo substr_replace($uniq_url, '...', $maxLength);
-                            } else {
-                                echo $uniq_url;
-                            }
-                        ?>
-                    </a>
-                </strong></span>
-                <span id="copyText" class="ms-5 cursor-pointer font-semibold hover:text-indigo-800" onclick="copyLink()">Copy</span>
-                <script>
-                    function copyLink(){
-                        navigator.clipboard.writeText("<?= $uniq_url ?>");
-                        document.querySelector("#copyText").innerText = "Copied";
-                    }
-                </script>
-            </div>
 
-            <?php displayFlashMessage(); ?>
+    <main class="">
+        <div class="relative flex min-h-screen overflow-hidden bg-gray-50 py-6 sm:py-12">
+            <img src="./images/beams.jpg" alt="" class="absolute top-1/2 left-1/2 max-w-none -translate-x-1/2 -translate-y-1/2" width="1308" />
+            <div class="absolute inset-0 bg-[url(./images/grid.svg)] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]"></div>
 
-            <h1 class="text-xl text-indigo-800 text-bold my-10">Received feedback</h1>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <?php foreach ($feedbacks as $feedback): ?>
-                <div class="relative flex items-center space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">
-                    <div class="focus:outline-none">
-                        <p class="text-gray-500">
-                            <?= htmlspecialchars($feedback) ?>
-                        </p>
-                    </div>
+            <div class="relative max-w-7xl mx-auto">
+                <div class="flex justify-end">
+                    <span class="block text-gray-600 font-mono border border-gray-400 rounded-xl px-2 py-1">Your feedback form link: <strong>
+                            <a href="<?php echo  $uniq_url ?>">
+                                <?php
+                                $maxLength = 20;
+                                if (strlen($uniq_url) > $maxLength) {
+                                    echo substr_replace($uniq_url, '...', $maxLength);
+                                } else {
+                                    echo $uniq_url;
+                                }
+                                ?>
+                            </a>
+                        </strong></span>
+                    <span id="copyText" class="ms-5 cursor-pointer font-semibold hover:text-indigo-800" onclick="copyLink()">Copy</span>
+                    <script>
+                        function copyLink() {
+                            navigator.clipboard.writeText("<?= $uniq_url ?>");
+                            document.querySelector("#copyText").innerText = "Copied";
+                        }
+                    </script>
                 </div>
-            <?php endforeach; ?>
 
+                <div class="">
+                    <?php displayFlashMessage(); ?>
+                </div>
+
+                <h1 class="text-xl text-indigo-800 text-bold my-10">Received feedback</h1>
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <?php foreach ($feedbacks as $feedback) : ?>
+                        <div class="relative flex space-x-3 rounded-lg border border-gray-300 bg-white px-6 py-5 shadow-sm focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:border-gray-400">
+                            <div class="focus:outline-none cursor-pointer" onclick="showPopup(` <?= $feedback ?> `)">
+                                <p class="text-gray-500">
+                                    <?= strlen($feedback) > 300 ? substr($feedback, 0, 300) . '...' : $feedback; ?>
+
+                                </p>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+
+                    <script>
+                        function showPopup(string) {
+                            document.getElementById("full_feedback").innerText = string;
+                            document.getElementById("full_popup").classList.remove("z-0");
+                            document.getElementById("full_popup").classList.add("z-50");
+                        }
+
+                        function closePopup() {
+                            document.getElementById("full_popup").classList.remove("z-50");
+                            document.getElementById("full_popup").classList.add("z-0");
+                            document.getElementById("full_feedback").innerText = "Full Feedback Here";
+                        }
+                    </script>
+
+                </div>
             </div>
+
         </div>
+    </main>
 
-    </div>
-</main>
-
-<footer class="bg-white">
-    <div class="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center justify-center lg:px-8">
-        <p class="text-center text-xs leading-5 text-gray-500">&copy; 2024 TruthWhisper, Inc. All rights reserved.</p>
-    </div>
-</footer>
+    <footer class="relative bg-white z-10">
+        <div class="mx-auto max-w-7xl px-6 py-12 md:flex md:items-center justify-center lg:px-8">
+            <p class="text-center text-xs leading-5 text-gray-500">&copy; 2024 TruthWhisper, Inc. All rights reserved.</p>
+        </div>
+    </footer>
 
 </body>
+
 </html>
