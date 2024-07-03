@@ -1,6 +1,6 @@
 # Truthwhisper. 
 It is an application to know about yourself from other without seeing their information. In other word you can say anything about others but they can not see your information. <br>
-To see the live application, visit: [https://truthwhisper.000webhostapp.com/index.php](truthwhisper.000webhostapp.com)
+To see the live application, visit: [truthwhisper.000webhostapp.com](https://truthwhisper.000webhostapp.com/index.php)
 
 
 
@@ -40,4 +40,4 @@ After you know how you are to other people, you can then improve yourself accord
 
 ## Contact
 email: mahadirzb@gmail.com <br>
-Linkedin: [https://www.linkedin.com/in/mahadirazib/](linkedin.com/in/mahadirazib)
+Linkedin: [linkedin.com/in/mahadirazib](https://www.linkedin.com/in/mahadirazib/)
