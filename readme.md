@@ -1,6 +1,6 @@
 # Truthwhisper. 
 It is an application to know about yourself from other without seeing their information. In other word you can say anything about others but they can not see your information. <br>
-To see the live application, visit: [truthwhisper.000webhostapp.com](https://truthwhisper.000webhostapp.com/index.php)
+To see the live application, visit: [truthwhisper.free.nf](http://truthwhisper.free.nf)
 
 
 
